@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.4.10] - 2022-04-12
 ### Added
- -  Turns off other lights in group when it turns on. (Thanks @banboobee)
+ - Turns off other lights in group when it turns on. (Thanks @banboobee)
 ### Fixed
  - Improved 'device unreachable' false alerts (Thanks @banboobee)
  - Updated dependencies to resolve vulnerabilities
