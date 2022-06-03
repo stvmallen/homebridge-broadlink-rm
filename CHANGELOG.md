@@ -4,9 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unrelased]
+## [Unreleased]
+### Fixed
+ - "no device found" message in Node 18 (Thanks @h2oota) #486
+ - Version number message incorrect in prerelease (Thanks @seidnerj)
+
+## [4.4.10] - 2022-04-12
 ### Added
- -  Turns off other lights in group when it turns on. (Thanks @banboobee)
+ - Turns off other lights in group when it turns on. (Thanks @banboobee)
 ### Fixed
  - Improved 'device unreachable' false alerts (Thanks @banboobee)
  - Updated dependencies to resolve vulnerabilities
