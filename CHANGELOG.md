@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - "no device found" message in Node 18 (Thanks @h2oota) #486
  - Version number message incorrect in prerelease (Thanks @seidnerj)
+### Changed
+ - Homebridge versions bumped
 
 ## [4.4.10] - 2022-04-12
 ### Added
