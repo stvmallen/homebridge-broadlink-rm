@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Version number message incorrect in prerelease (Thanks @seidnerj)
 ### Changed
  - Homebridge versions bumped
+ - Device not found message update to suggest unlocking (Thanks @jacoblukewook) #491
 
 ## [4.4.10] - 2022-04-12
 ### Added
