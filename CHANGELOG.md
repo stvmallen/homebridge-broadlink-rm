@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+ - Added support for fahrenheit temperature sources #495 - set tempSourceUnits to 'F'
+
+## [4.4.11] - 2022-06-08
+### Added
  - MQTT support for zigbee2mqtt (Thanks @mikicof) #467
 ### Fixed
  - "no device found" message in Node 18 (Thanks @h2oota) #486
