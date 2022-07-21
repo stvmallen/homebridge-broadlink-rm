@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
  - Added support for fahrenheit temperature sources #495 - set tempSourceUnits to 'F'
+### Fixed
+ - Updated node, homebridge, ping, semver, eslint, mocha, and release-it versions
 ## Changed
  - Adds support for 0x520b and 0x520c Devices
 
