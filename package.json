@@ -17,8 +17,8 @@
     "rm4"
   ],
   "engines": {
-    "node": ">=14.20.0",
-    "homebridge": ">=1.5.0"
+    "node": ">=7.6.0",
+    "homebridge": ">=1.4.2"
   },
   "author": {
     "name": "kiwi-cam"
