@@ -62,7 +62,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (config.minimumAutoOnOffDuration === undefined) {config.minimumAutoOnOffDuration = config.autoMinimumDuration || 120;} // Backwards compatible with `autoMinimumDuration`
     config.minTemperature = config.minTemperature || -15;
     config.maxTemperature = config.maxTemperature || 50;
-    config.minStep = config.minStep || 1;
+    config.tempStepSize = config.tempStepSize || 1;
     if(config.mqttURL) {
       //MQTT updates when published so frequent refreshes aren't required ( 10 minute default as a fallback )
       config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 600;
@@ -867,7 +867,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       .setProps({
         minValue: config.minTemperature,
         maxValue: config.maxTemperature,
-        minStep: config.minStep
+        minStep: config.tempStepSize
       });
 
     this.serviceManager
