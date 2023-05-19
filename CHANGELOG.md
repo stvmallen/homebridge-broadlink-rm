@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Added minStep to configuration (defaulting to 1) to allow AC units with 0.5 steps (Thanks @nasudon) #570
 ### Fixed
  - Updated versions to address vulnerabilities
+ - Set HAP properties for fan speed handling (Thanks @datibbaw) #583
 ## Changed
  - Serialised simultaneous IR/RF commands (Thanks @banboobee) #520
  - Adjusted logging levels for temperature/humidity updates
