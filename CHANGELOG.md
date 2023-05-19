@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+ - Added minStep to configuration (defaulting to 1) to allow AC units with 0.5 steps (Thanks @nasudon) #570
 ### Fixed
  - Updated versions to address vulnerabilities
 ## Changed
