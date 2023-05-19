@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
- - Added minStep to configuration (defaulting to 1) to allow AC units with 0.5 steps (Thanks @nasudon) #570
+ - Added tempStepSize to configuration (defaulting to 1) to allow AC units with 0.5 steps (Thanks @nasudon) #570
 ### Fixed
  - Updated versions to address vulnerabilities
  - Set HAP properties for fan speed handling (Thanks @datibbaw) #583
