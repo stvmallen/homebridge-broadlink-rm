@@ -12,27 +12,27 @@ const BroadlinkRMAccessory = require('./accessory');
 const FanAccessory = require('./fan');
 
 class HumidifierDehumidifierAccessory extends FanAccessory {
-  
+
   constructor (log, config = {}, serviceManagerType) {
     super(log, config, serviceManagerType);
-	  
+
     //Fakegato setup
 	  if(config.noHistory !== true) {
       this.displayName = config.name;
       this.lastUpdatedAt = undefined;
-      this.historyService = new HistoryService("room", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'}); 
+      this.historyService = new HistoryService("room", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
       this.historyService.log = log;
     }
-    
+
     this.humidityCallbackQueue = {};
     this.monitorHumidity();
   }
 
   setDefaults () {
     const { data, config, state } = this;
-	  
+
 	  super.setDefaults();
-	
+
     // Set config default values
     config.humidifierOnly = config.humidifierOnly || false;
     config.deHumidifierOnly = config.deHumidifierOnly || false;
@@ -48,17 +48,17 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   reset () {
     super.reset();
   }
-  
+
   async setSwitchState (hexData, previousValue){
     this.previouslyOff = previousValue ? false : true;
-    this.updateDeviceState ();     
+    this.updateDeviceState ();
     super.setSwitchState (hexData, previousValue);
     super.checkAutoOnOff();
   }
-  
+
   async setCurrentState (hexData, previousValue) {
     const { data, config, log, logLevel, name, state, serviceManager } = this;
-    
+
     if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} setCurrentState: requested update from ${previousValue} to ${state.currentState}`);}
 
     // Ignore if no change to the targetPosition
@@ -75,43 +75,43 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
         hexData = data.fanOnly;
         break;
     }
-    
+
     if (logLevel <=2) {log(`${name} setCurrentState: currently ${previousValue}, changing to ${state.currentState}`);}
-	  
+
     if(hexData) {await this.performSend(hexData);}
     serviceManager.refreshCharacteristicUI(Characteristic.CurrentHumidifierDehumidifierState);
     this.previouslyOff = false;
   }
-  
+
   async setHumidifierThreshold (hexData, previousValue) {
     const { config, name, log, state, logLevel } = this;
     if (state.HumidifierThreshold === previousValue && config.preventResendHex && !this.previouslyOff) {return;}
     let desiredState = this.getDesiredState ();
     let previousState = state.currentState;
-    
+
     if (state.currentState === desiredState) {return;}
-    
+
     if (logLevel <=2) {log(`${name} setHumidifierThreshold: currently ${previousValue} to ${state.DehumidifierThreshold}, changing to ${state.HumidifierThreshold} to ${state.DehumidifierThreshold}`);}
     state.currentState = desiredState;
     this.setCurrentState (hexData, previousState);
   }
-  
+
   async setDehumidifierThreshold (hexData, previousValue) {
     const { config, name, log, state, logLevel } = this;
     if (state.DehumidifierThreshold === previousValue && config.preventResendHex && !this.previouslyOff) {return;}
     let desiredState = this.getDesiredState ();
     let previousState = state.currentState;
-    
+
     if (state.currentState === desiredState) {return;}
-    
+
     if (logLevel <=2) {log(`${name} setDeumidifierThreshold: currently ${state.HumidifierThreshold} to ${previousValue}, changing to ${state.HumidifierThreshold} to ${state.DehumidifierThreshold}`);}
     state.currentState = desiredState;
     this.setCurrentState (hexData, previousState);
   }
-  
+
   getDesiredState () {
     const { config, log, name, state, serviceManager } = this;
-    
+
     let desiredState = Characteristic.CurrentHumidifierDehumidifierState.IDLE;
 
     //Work out the ideal state
@@ -126,12 +126,12 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     } else if (state.targetState === Characteristic.TargetHumidifierDehumidifierState.HUMIDIFIER) {
       if(state.currentHumidity < state.HumidifierThreshold){
         desiredState = Characteristic.CurrentHumidifierDehumidifierState.HUMIDIFYING;
-      } 
+      }
     } else if (state.targetState === Characteristic.TargetHumidifierDehumidifierState.DEHUMIDIFIER) {
       if(state.currentHumidity > state.DehumidifierThreshold){
         desiredState = Characteristic.CurrentHumidifierDehumidifierState.DEHUMIDIFYING;
       }
-    } 
+    }
 
     if (config.humidifierOnly && desiredState === Characteristic.CurrentHumidifierDehumidifierState.DEHUMIDIFYING) {
       desiredState = Characteristic.CurrentHumidifierDehumidifierState.IDLE;
@@ -140,12 +140,12 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
       desiredState = Characteristic.CurrentHumidifierDehumidifierState.IDLE;
     }
 
-    return desiredState;  
+    return desiredState;
   }
-	
+
   async updateDeviceState () {
     const { serviceManager, logLevel, config, name, log, state } = this;
-    
+
     //Do nothing if turned off
     if (!state.switchState) {
       state.currentState = Characteristic.CurrentHumidifierDehumidifierState.INACTIVE;
@@ -153,7 +153,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
       this.previouslyOff = true;
       return;
     }
-    
+
     //Update "switchState to match device state
 	  if (state.targetState === Characteristic.TargetHumidifierDehumidifierState.OFF){
       state.currentState = Characteristic.CurrentHumidifierDehumidifierState.INACTIVE;
@@ -161,8 +161,8 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
       this.previouslyOff = true;
       return;
     }
-    
-    // Use hardcoded values if not using Humidity values 
+
+    // Use hardcoded values if not using Humidity values
     if(config.noHumidity && state.targetState === Characteristic.TargetHumidifierDehumidifierState.HUMIDIFIER){
       state.currentHumidity = 0
       state.HumidifierThreshold = 100
@@ -170,11 +170,11 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
       state.currentHumidity = 100
       state.DehumidifierThreshold = 0
     }
-    
+
     let desiredState = this.getDesiredState ();
-    
+
     if (state.currentState === desiredState && !this.previouslyOff) {return;}
-    
+
     let previousState = state.currentState;
     if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateDeviceState: currently ${state.currentState}, changing to ${desiredState}`);}
 
@@ -187,7 +187,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   async monitorHumidity () {
     const { logLevel, config, host, log, name, state } = this;
     const device = getDevice({ host, log });
-	  
+
     // Try again in a second if we don't have a device yet
     if (!device) {
       await delayForDuration(1);
@@ -216,22 +216,22 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     humidity += humidityAdjustment;
     state.currentHumidity = humidity;
     if(logLevel <=2) {log(`\x1b[36m[INFO] \x1b[0m${name} onHumidity (` + humidity + `)`);}
-	 
-	  //Fakegato history update 
+
+	  //Fakegato history update
     //Ignore readings of exactly zero - the default no value value.
     if(config.noHistory !== true && this.state.currentHumidity != 0) {
       this.lastUpdatedAt = Date.now();
       if(logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} Logging data to history: humidity: ${this.state.currentHumidity}`);}
       this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), humidity: this.state.currentHumidity });
     }
-    
+
     this.updateDeviceState();
     this.processQueuedHumidityCallbacks(humidity);
   }
 
   addHumidityCallbackToQueue (callback) {
     const { config, host, logLevel, log, name, state } = this;
-    
+
     // Clear the previous callback
     if (Object.keys(this.humidityCallbackQueue).length > 1) {
       if (state.currentHumidity) {
@@ -243,14 +243,14 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     // Add a new callback
     const callbackIdentifier = uuid.v4();
     this.humidityCallbackQueue[callbackIdentifier] = callback;
-    
+
     // Read temperature from file
     if (config.humidityFilePath) {
       this.updateHumidityFromFile();
 
       return;
     }
-    
+
     // Read humidity from mqtt
     if (config.mqttURL) {
       const humidity = this.mqttValueForIdentifier('humidity');
@@ -258,7 +258,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
 
       return;
     }
-    
+
 	  //Check if we're actually reading from the device
     if(config.noHumidity)  {
       let humidity = 50;
@@ -268,10 +268,10 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
         humidity = 0;
       }
       this.onHumidity(null,humidity);
-      
+
       return;
     }
-    
+
     // Read temperature from Broadlink RM device
     // If the device is no longer available, use previous tempeature
     const device = getDevice({ host, log });
@@ -289,7 +289,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     device.checkHumidity();
     if (logLevel <1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} addHumidityCallbackToQueue (requested humidity from device, waiting)`);}
   }
-  
+
   updateHumidityFromFile () {
     const { config, logLevel, host, log, name, state } = this;
     const { humidityFilePath, batteryAlerts } = config;
@@ -327,7 +327,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
       this.onHumidity(temperature, humidity);
     });
   }
-  
+
   // MQTT
   onMQTTMessage (identifier, message) {
     const { state, logLevel, log, name } = this;
@@ -400,7 +400,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
 
       if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} onMQTTMessage (parsed value: ${value})`);}
       value = parseFloat(value);
-    
+
       if (identifier == 'battery'){
         state.batteryLevel = value;
         return;
@@ -435,7 +435,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
 
     this.addHumidityCallbackToQueue(callback);
   }
- 
+
   setupServiceManager () {
     const { config, data, name, serviceManagerType } = this;
     const { on, off, targetStateHumidifier, targetStateDehumidifier, lockControls, unlockControls, swingToggle } = data || {};
@@ -446,7 +446,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     if (config.showRotationDirection !== false && config.hideRotationDirection !== true) {config.showRotationDirection = true}
 
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.HumidifierDehumidifier, this.log);
-    
+
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',
       type: Characteristic.Active,
@@ -460,13 +460,15 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
       }
     });
 
-    this.serviceManager.addGetCharacteristic({
-      name: 'currentHumidity',
-      type: Characteristic.CurrentRelativeHumidity,
-      method: this.getCurrentHumidity,
-      bind: this
-    });
-	
+    if (!config.noHumidity) {
+      this.serviceManager.addGetCharacteristic({
+        name: 'currentHumidity',
+        type: Characteristic.CurrentRelativeHumidity,
+        method: this.getCurrentHumidity,
+        bind: this
+      });
+    }
+
 	  this.serviceManager.addToggleCharacteristic({
       name: 'HumidifierThreshold',
       type: Characteristic.RelativeHumidityHumidifierThreshold,
@@ -477,7 +479,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
         setValuePromise: this.setHumidifierThreshold.bind(this)
       }
 	  });
-	
+
 	  this.serviceManager.addToggleCharacteristic({
       name: 'DehumidifierThreshold',
       type: Characteristic.RelativeHumidityDehumidifierThreshold,
@@ -488,7 +490,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
         setValuePromise: this.setDehumidifierThreshold.bind(this)
       }
 	  });
-		
+
     this.serviceManager.addToggleCharacteristic({
       name: 'currentState',
       type: Characteristic.CurrentHumidifierDehumidifierState,
@@ -497,7 +499,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
       bind: this,
       props: { }
     });
-    
+
     this.serviceManager.addToggleCharacteristic({
       name: 'targetState',
       type: Characteristic.TargetHumidifierDehumidifierState,
@@ -508,7 +510,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
         setValuePromise: this.updateDeviceState.bind(this)
       }
     });
-    
+
     //Remove Auto mode if not getting Humidity readings
     if(config.noHumidity) {
 	    this.serviceManager
@@ -517,40 +519,40 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
 				    validValues: [0, 1, 2]
         });
     }
-    
+
     if (config.humidifierOnly) {
 	    this.serviceManager
     		.getCharacteristic(Characteristic.TargetHumidifierDehumidifierState)
 		     	.setProps({
 					  validValues: [1]
         });
-				
+
 	    this.serviceManager
     		.getCharacteristic(Characteristic.CurrentHumidifierDehumidifierState)
 		    	.setProps({
           validValues: [0, 2]
         });
-      
+
       this.serviceManager
 		    .getCharacteristic(Characteristic.RelativeHumidityDehumidifierThreshold)
 			    .setProps({
 				    validValues: [100]
         });
-    }	
-	 
+    }
+
  	  if (config.deHumidifierOnly) {
 	    this.serviceManager
 		    .getCharacteristic(Characteristic.TargetHumidifierDehumidifierState)
 			    .setProps({
 				    validValues: [2]
         });
-				
+
 	    this.serviceManager
 		    .getCharacteristic(Characteristic.CurrentHumidifierDehumidifierState)
 			    .setProps({
 				    validValues: [0, 3]
         });
-      
+
       this.serviceManager
 		    .getCharacteristic(Characteristic.RelativeHumidityHumidifierThreshold)
 			    .setProps({
